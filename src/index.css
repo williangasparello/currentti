@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Currentti — design tokens (tema ESCURO, acento verde)
+   Primária (verde): hsl(142, 71%, 45%)  ~ #22c55e
+   Nunca usar cores hardcoded nos componentes: sempre estes tokens.
+   ========================================================================== */
+@layer base {
+  :root {
+    --background: 0 0% 5%;            /* #0d0d0d */
+    --foreground: 0 0% 96%;
+
+    --card: 0 0% 8%;                 /* #141414 */
+    --card-foreground: 0 0% 96%;
+
+    --primary: 142 71% 45%;          /* #22c55e verde */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 13%;           /* #212121 (hover/inputs) */
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 56%;
+
+    --accent: 142 40% 14%;           /* verde escuro translúcido */
+    --accent-foreground: 142 71% 60%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 0 0% 16%;              /* #292929 */
+    --input: 0 0% 20%;
+    --ring: 142 71% 45%;
+
+    --sidebar: 0 0% 4%;              /* #0a0a0a — um pouco mais escuro */
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-accent: 142 71% 45%;
+
+    --radius: 0.7rem;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+      Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* preenchimento de inputs de data/hora em tema escuro */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+  }
+}
+
+/* barra de rolagem discreta */
+.thin-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.thin-scroll::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 8px; }
+.thin-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* animação do drawer lateral */
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.animate-drawer-in { animation: drawer-in 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in { animation: fade-in 0.15s ease-out; }

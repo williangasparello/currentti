@@ -1,0 +1,40 @@
+{
+  "name": "q7-educacao",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Q7 Educação — CRM com agente SDR de IA para WhatsApp. App local, independente do Lovable.",
+  "scripts": {
+    "dev": "vite",
+    "server": "cross-env PORT=8787 node server/index.js",
+    "start": "concurrently -n server,web -c green,cyan \"npm:server\" \"npm:dev\"",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "prod": "node server/index.js",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "clsx": "^2.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "lucide-react": "^0.454.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "tailwind-merge": "^2.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
+    "cross-env": "^10.1.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  }
+}

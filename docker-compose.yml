@@ -1,0 +1,17 @@
+services:
+  currentti:
+    build: .
+    container_name: currentti
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      - PORT=8787
+      - DB_PATH=/data/data.json
+      # troque a senha do admin oficial em produção:
+      - SUPER_ADMIN_PASSWORD=${SUPER_ADMIN_PASSWORD:-Q7admin2026}
+    volumes:
+      - currentti-data:/data
+
+volumes:
+  currentti-data:
