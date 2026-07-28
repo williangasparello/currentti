@@ -230,6 +230,100 @@ app.post("/api/admin/block", requireAuth, requireAdmin, (req, res) => {
   ok(res, { ok: true });
 });
 
+// ---- Gerenciamento completo de usuários (admin) ----
+function adminUserView(u) {
+  return {
+    id: u.id,
+    email: u.email,
+    full_name: u.full_name,
+    status: u.status,
+    roles: u.roles || [],
+    is_placeholder: !!u.is_placeholder,
+    created_at: u.created_at,
+  };
+}
+const isSuperAdmin = (u) => String(u.email || "").toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+
+app.get("/api/admin/users", requireAuth, requireAdmin, (req, res) => {
+  ok(res, load().users.map(adminUserView));
+});
+
+app.post("/api/admin/users", requireAuth, requireAdmin, (req, res) => {
+  const db = load();
+  const email = String(req.body?.email || "").trim();
+  const password = String(req.body?.password || "");
+  const fullName = String(req.body?.fullName || "");
+  const makeAdmin = !!req.body?.admin;
+  if (!email || password.length < 6) return fail(res, "Informe e-mail e senha (mínimo 6 caracteres).");
+  if (db.users.find((u) => u.email.toLowerCase() === email.toLowerCase()))
+    return fail(res, "User already registered");
+  const { salt, hash } = hashPassword(password);
+  const user = {
+    id: uid("u"),
+    email,
+    full_name: fullName,
+    salt,
+    passwordHash: hash,
+    status: "approved",
+    onboarding_done: false,
+    roles: makeAdmin ? ["admin", "user"] : ["user"],
+    created_at: nowISO(),
+  };
+  db.users.push(user);
+  bootstrapWorkspaceForUser(db, user);
+  save();
+  ok(res, adminUserView(user));
+});
+
+app.patch("/api/admin/users/:id", requireAuth, requireAdmin, (req, res) => {
+  const db = load();
+  const u = db.users.find((x) => x.id === req.params.id);
+  if (!u) return fail(res, "Usuário não encontrado");
+  const b = req.body || {};
+  if ("status" in b) {
+    if (isSuperAdmin(u) && b.status !== "approved")
+      return fail(res, "Não é possível bloquear o administrador principal.");
+    if (["pending", "approved", "blocked"].includes(b.status)) u.status = b.status;
+  }
+  if ("admin" in b) {
+    if (isSuperAdmin(u) && !b.admin) return fail(res, "Não é possível remover o admin principal.");
+    if (u.id === req.user.id && !b.admin) return fail(res, "Você não pode remover seu próprio admin.");
+    const roles = new Set(u.roles || ["user"]);
+    if (b.admin) roles.add("admin");
+    else roles.delete("admin");
+    roles.add("user");
+    u.roles = [...roles];
+  }
+  if (typeof b.full_name === "string") u.full_name = b.full_name;
+  save();
+  ok(res, adminUserView(u));
+});
+
+app.post("/api/admin/users/:id/password", requireAuth, requireAdmin, (req, res) => {
+  const db = load();
+  const u = db.users.find((x) => x.id === req.params.id);
+  if (!u) return fail(res, "Usuário não encontrado");
+  const next = String(req.body?.password || "");
+  if (next.length < 6) return fail(res, "Password should be at least 6 characters");
+  const { salt, hash } = hashPassword(next);
+  u.salt = salt;
+  u.passwordHash = hash;
+  save();
+  ok(res, { changed: true });
+});
+
+app.delete("/api/admin/users/:id", requireAuth, requireAdmin, (req, res) => {
+  const db = load();
+  const u = db.users.find((x) => x.id === req.params.id);
+  if (!u) return fail(res, "Usuário não encontrado");
+  if (isSuperAdmin(u)) return fail(res, "Não é possível excluir o administrador principal.");
+  if (u.id === req.user.id) return fail(res, "Você não pode excluir a si mesmo.");
+  db.users = db.users.filter((x) => x.id !== u.id);
+  db.workspaceMembers = db.workspaceMembers.filter((m) => m.user_id !== u.id);
+  save();
+  ok(res, { deleted: true });
+});
+
 // ======================= WORKSPACES =======================
 function publicWorkspace(ws, role) {
   return {
