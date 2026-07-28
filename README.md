@@ -1,4 +1,4 @@
-# Q7 Educação
+# CurrentTI Ads
 
 CRM com **agente SDR de IA** para WhatsApp. App **100% local**, sem Lovable.
 React + Vite + TypeScript + Tailwind, com backend Supabase **próprio** (opcional).
