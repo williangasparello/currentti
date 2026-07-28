@@ -1,6 +1,8 @@
 services:
   currentti:
-    build: .
+    # Builda direto do repositório Git (funciona no "Compose a partir de URL" da Hostinger,
+    # que busca só o docker-compose.yml). Para build local use: docker compose build (troque por ".").
+    build: https://github.com/williangasparello/currentti.git#main
     container_name: currentti
     restart: unless-stopped
     ports:
